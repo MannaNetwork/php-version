@@ -10,8 +10,7 @@ include("translations/en.js");
 //verify that the lnk (i.e link) number above is yours to insure your lnk credit and payments
 //change the configurations in the member_config.php page. All of the settings there can be gotten by logging into your advertiser dashboard (at your agent's site) and clicking the "Settings" button by the appropriate link/ad. 
 include('member_config.php');
-echo '<br>in php index.php $mn_local_lnk_num = ', $mn_local_lnk_num;
-//now we will put in a new check to make sure they changed their link_num
+
 if ($mn_local_lnk_num == "change_me" OR $mn_local_lnk_num == ""){
 $url = $_SERVER['SERVER_NAME'];
 $args = array(
@@ -32,11 +31,11 @@ exit();
 }
 
 
-if (!defined('REGISTRATION_CATEGORY_HEADING')) {
+/*if (!defined('REGISTRATION_CATEGORY_HEADING')) {
 include('translations/en.php')  ;
 }
 require 'translations/en.js';
-
+*/
 if(isset($plugin_is_registered) && $plugin_is_registered !== "yes"){
 
 	if ( '' === $mn_local_lnk_num || '' === $mn_local_lnk_num ) {
@@ -672,5 +671,6 @@ echo $display_main;
 include('includes/bootstrap_footer.php');
 //echo '</body></html>';
 */
+include('includes/basic_html_footer.php');
 ?>
 
