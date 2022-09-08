@@ -58,7 +58,7 @@ output += "</td></tr></table></div>";
 
 }
 
-function showSubLoc1(str, currentLevel,cat_id,type,agent_url,agent_folder) 
+function showSubLoc1(str,currentLevel,cat_id,type,agent_url,agent_folder) 
 {
 /*
 Process:
@@ -141,7 +141,7 @@ document.getElementById("selected_cat_name").value = myarr[2];
      }
  }
   }
- 
+  
 if(type=="regions"){
 
   xmlhttp.open("GET","/php/getsubloc1.php?tregional_num="+myarr[1]+"&type=regions&agent_url="+agent_url+"&agent_folder="+agent_folder);

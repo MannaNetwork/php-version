@@ -1,4 +1,6 @@
 <?php
+ //if ( isset( $_GET['q'] ) && is_numeric( $_GET['q'] ) ) {	$category_id = htmlspecialchars( $_GET['q'] ) ; }
+	
 $file = 'https://' . $mn_agent_url . '/' . $mn_agent_folder . '/mannanetwork-dir/get_category_json.php';
 	$post = [
     'selected_cat_id' => $category_id,

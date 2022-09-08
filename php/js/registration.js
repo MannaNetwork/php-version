@@ -1,6 +1,7 @@
 <script>
 
-function showSubLoc1(str,currentLevel,cat_id,type) 
+function showSubLoc1(str,currentLevel,cat_id,type)
+{ 
 var myarr = str.split(":");
 /*window.alert('myarr[0] = '+myarr[0]);
 window.alert('selected catid myarr[1] = '+myarr[1]);
