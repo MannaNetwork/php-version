@@ -4,7 +4,6 @@ $display_blockmp = '<h3 align="center" style="padding:5px 10px;">'.REG_FORM_WELC
 Test Form
 $file = 'https://' . $mn_agent_url . '/' . $mn_agent_folder . '/mannanetwork-dir/get_category_json.php';
 echo '<br>$file = ', $file;
-/* Dev Note PHPCS reports "ERROR   | Processing form data without nonce verification" for all these POSt variables but this page is included and the nonce verification was done on the previous page 
 $selected_cat_id = 1;
 echo '<form name="test" action="'.$file.'" method="post"><input type="text" name="selected_cat_id" value="'.$selected_cat_id.'"><input type="submit" value="Submit">
 </form> ';  */
@@ -94,74 +93,50 @@ $selected_cat_id = 1;
 //both determiine what links are shown via category id var
 
 $file = 'https://' . $mn_agent_url . '/' . $mn_agent_folder . '/mannanetwork-dir/get_category_json.php';
-/* Dev Note PHPCS reports "ERROR   | Processing form data without nonce verification" for all these POSt variables but this page is included and the nonce verification was done on the previous page */
-
-
-if ( isset( $_POST['main_cat_nonce'] ) ) {
-	$nonce = sanitize_text_field( wp_unslash( $_POST['main_cat_nonce'] ) );
-} elseif ( isset( $_GET['main_cat_nonce'] ) ) {
-	$nonce = sanitize_text_field( wp_unslash( $_GET['main_cat_nonce'] ) );
-} else {
-	$nonce = 'null';
-}
- 
-
-	$response = wp_remote_post(
-		$file,
-		array(
-			'method'      => 'POST',
-			'timeout'     => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking'    => true,
-			'headers'     => array(),
-			'body'        => array(
-			'selected_cat_id' => $selected_cat_id,
-			'type' => 'categories',
-			),
-			'cookies'     => array(),
-		)
-	);
-
-	if ( is_wp_error( $response ) ) {
-		$error_message = esc_attr( $response->get_error_message() );
-		echo 'Something went wrong: (' . esc_attr( $error_message ) . ')';
-	} else {
-$category_list = json_decode( $response['body'], true );
-
+		$args = array(
+		'selected_cat_id' => $selected_cat_id,
+               'type' => 'categories'
+		);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $file);
+		curl_setopt($ch, CURLOPT_POSTFIELDS,$args);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$data = curl_exec($ch);
+    		    $curl_errno = curl_errno($ch);
+		    $curl_error = curl_error($ch);
+		    if ($curl_errno > 0) {
+			    echo "cURL Error line 575 ($curl_errno): $curl_error\n";
+		    } else {  
+$category_list = json_decode( $data, true );
 $category_list = str_replace('[', '', $category_list);
 $category_list = str_replace(']', '', $category_list);
 
 $display_blockmp .= '
 <script>
-var main_cat_nonce = "'.esc_attr( $nonce ).'"
-var original_cat_id = "'.esc_attr( $selected_cat_id ) . '"
+var original_cat_id = "'.htmlspecialchars( $selected_cat_id ) . '"
 </script>';
 $display_blockmp .= '<span id="mn_subcat_container"> 
  <table id="mn_subcat_table">
 <tr><td><h2>'.REGISTRATION_CATEGORY_HEADING.'</h2>
-<select name="submenu" onchange="showSubMenu(this.value,\'' . esc_attr( $nonce ) . '\',1,\'' . esc_attr( $selected_cat_id ) . '\',\'categories\',\''.esc_attr( $mn_agent_url).'\',\''.esc_attr( $mn_agent_folder).'\')"><option value="">' . esc_attr( WORDING_AJAX_MENU1 ) . '</option> ';
-//orig <select name="submenu" onchange="showSubLoc1(this.value,\'' . esc_attr( $nonce ) . '\',1,\'' . esc_attr( $selected_cat_id ) . '\',\'categories\',\''+agent_url+'\',\''+agent_folder+'\')"><option value="">' . esc_attr( WORDING_AJAX_MENU1 ) . '</option> ';
-
-
-		$display_blockmp .= "<option value='y:" . esc_attr( $selected_cat_id ) . ":'></option>";
-		
+<select name="submenu" onchange="showSubMenu(this.value,1,\'' . htmlspecialchars( $selected_cat_id ) . '\',\'categories\',\''.htmlspecialchars( $mn_agent_url).'\',\''.htmlspecialchars( $mn_agent_folder).'\')"><option value="">' . htmlspecialchars( WORDING_AJAX_MENU1 ) . '</option> ';
+$display_blockmp .= "<option value='y:" . htmlspecialchars( $selected_cat_id ) . ":'></option>";
 		foreach ( $category_list as $key => $value ) {
 			if ( $category_list[ $key ]['lft'] + 1 < $category_list[ $key ]['rgt'] ) {
-				$display_blockmp .= "<option value='y:" . esc_attr( $category_list[ $key ]['id'] ) . ':' . esc_attr( $category_list[ $key ]['name'] ) . "'>" . esc_attr( $category_list[ $key ]['name'] ) . '</option>';
+				$display_blockmp .= "<option value='y:" . htmlspecialchars( $category_list[ $key ]['id'] ) . ':' . htmlspecialchars( $category_list[ $key ]['name'] ) . "'>" . htmlspecialchars( $category_list[ $key ]['name'] ) . '</option>';
 			} else {
-				$display_blockmp .= "<option value='n:" . esc_attr( $category_list[ $key ]['id'] ) . ':' . esc_attr( $category_list[ $key ]['name'] ) . "'>" . esc_attr( $category_list[ $key ]['name'] ) . '</option>';
+				$display_blockmp .= "<option value='n:" . htmlspecialchars( $category_list[ $key ]['id'] ) . ':' . htmlspecialchars( $category_list[ $key ]['name'] ) . "'>" . htmlspecialchars( $category_list[ $key ]['name'] ) . '</option>';
 			}
 		}
 		$display_blockmp .= '</select>&nbsp;&nbsp;&nbsp;&nbsp;
-		      <div class="catHint1" id="catHint1" name="catHint1"><b>' . esc_attr( WORDING_AJAX_1 ) . '</b></div><input type="hidden" id="selected_cat_name" name="selected_cat_name" class ="selected_cat_name" value="">
+		      <div class="catHint1" id="catHint1" name="catHint1"><b>' . htmlspecialchars( WORDING_AJAX_1 ) . '</b></div><input type="hidden" id="selected_cat_name" name="selected_cat_name" class ="selected_cat_name" value="">
 <input type="hidden" id="selected_cat_id" name="selected_cat_id" class ="selected_cat_id" value=""><div width: 250px;style="font-size: larger; font-weight:stronger;">Your Current Selection *: <input style="font-size: larger; font-weight:stronger;width: 250px;" type="text" id="selected_cat_menu_name"  class="selected_cat_menu_name" name="selected_cat_menu_name" value=""><span class="dropt" style="font-size: large;" title="'.REG_BLOKT_CATEGORY_MOUSEOVER.'"><img height="21" width="21" src="/wp-content/plugins/manna-network/images/green_arrow.png">  <span style="width:500px;">'.REG_BLOKT_CATEGORY_MESSAGE.'</span></span></td></tr></table></span>';
 	}
 
 $display_blockmp .= '<span id="mn_location_container"> 
 <table id="mn_location_table">
 <tr><td><h2>'.REGISTRATION_REGIONAL_HEADING_SEL.'</h2><select name="regional" id="regional" onchange="
-showSubMenu(this.value,\'' . esc_attr( $nonce ) . '\',1,\'' . esc_attr( $selected_cat_id ) . '\',\'regions\',\''. esc_attr( $mn_agent_url).'\',\''.  esc_attr( $mn_agent_folder).'\')"><option value="">'.WORDING_AJAX_REGIONAL_REG1.'</option>';
+showSubMenu(this.value,1,\'' . htmlspecialchars( $selected_cat_id ) . '\',\'regions\',\''. htmlspecialchars( $mn_agent_url).'\',\''.  htmlspecialchars( $mn_agent_folder).'\')"><option value="">'.WORDING_AJAX_REGIONAL_REG1.'</option>';
 			$display_blockmp .= "
 		<option value='y:2566:Africa'>Africa</option>
 		<option value='y:2567:America - Central'>America - Central</option>
@@ -200,11 +175,9 @@ $display_blockmp .= ' <h1>'.WORDING_REGISTRATION_RECIPROCAL_HEADER.
 WORDING_REGISTRATION_RECIPROCAL.' </div>';
 }
 
-$plugin_name = basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) );
-$display_blockmp .= wp_nonce_field(); //this will ADD a nonce field to the form which will then need to be detected on exch of the showsubcat and showsubloc pages
 //The installer_id var (below) is a complicated and a bit confusing name. The id number comes from the widgets table (in manna) and represents the parent id (sic widget id number) of the parent of THIS website (i.e. orlandoreferralgroup in this case) which is 1stbitcoinbank.com (where org is registered). That number is stored in the WP plugin's options. This form retrieves that setting and forwards it as a hidden var (via POST) to itself, which then gets used by the Registration class
 $display_blockmp .= '
-     <img src="/wp-content/plugins/'.$plugin_name.'/tools/showCaptcha.php" alt="captcha" />
+     <img src="tools/showCaptcha.php" alt="captcha" />
       <label>'.WORDING_REGISTRATION_CAPTCHA.'</label>
         <input type="text" name="captcha" required style="width: 150px;"/>
 <input type="hidden" name="installer_id" value="'.$mn_widg_id.'">

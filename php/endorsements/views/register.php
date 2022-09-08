@@ -1,57 +1,6 @@
 <?php
-$root = dirname(dirname(dirname(dirname( __FILE__, 3 ))));
 
-if (file_exists($root.'/wp-load.php')) {
-// WP 2.6
-require_once($root.'/wp-load.php');
-} else {
-// Before 2.6
-require_once($root.'/wp-config.php');
-}
-get_header();
-
-
- if(is_multisite()){
- $blog_id = get_blog_option($blog_id,'siteurl');
-   $blog_details = get_blog_details(1);
- if (!defined('MNPREFX')) {
-   define("MNPREFX","mn_".$blog_details->blog_id);
-  }
-}else{
-//handle regular WP
-	if (!defined('MNPREFX')) {
-	define("MNPREFX","mn_");
-	}
-}
-
-$mn_agent_confgs = get_option('mn_agent_confgs');
-
-//if(!empty($mn_agent_confgs)){
-
-$ex = explode(",", $mn_agent_confgs);
-$mn_agent_url = $ex[0];
-$mn_agent_folder = $ex[1];
-$mn_agent_id = $ex[2];
-
-$mn_plgn_confgs = get_option(MNPREFX.'plgn_confgs');
-$ex2 = explode(",", $mn_plgn_confgs);
-$mn_remote_link_id = $ex2[0];
-$mn_pgn8tr_menu_items = $ex2[1];
-$mn_installer_id = $ex2[2];
-$mn_widg_id = $ex2[3];
-$plugin_is_registered = $ex2[4];
-
-
-
-if (!defined('REGISTRATION_CATEGORY_HEADING')) {
-include(dirname(__DIR__, 2)."/translations/en.php");
-}
-if($plugin_is_registered == "no" || $plugin_is_registered == "")
-{
-include(dirname(__DIR__, 2).'/translations/en_no_config.php');
-exit();
-}
-
+ 
 $dont_show_array= array('captcha', 'register', '_wpnonce', 'main_cat_nonce','_wp_http_referer');
 echo '<style>';
 include(dirname(__DIR__, 2).'/css/manna_network.css');
@@ -61,46 +10,38 @@ echo '<div id="mn_main_container"><div id="mn_main_menu_container" style="width:
   margin-right: auto ;">';
 if(isset($_POST['confirm'])){
 include('sanitize.php');
-$url1 = "https://".$mn_agent_url."/".$mn_agent_folder."/manna-network/members/register.php";
+$file = "https://".$mn_agent_url."/".$mn_agent_folder."/manna-network/members/register.php";
 $args = array();
 
 	foreach($_POST as $key=>$value){
-if(!in_array($key, $dont_show_array, TRUE)){
-	$args[$key] = $value;
-	
-          }
+		if(!in_array($key, $dont_show_array, TRUE)){
+		$args[$key] = $value;
+         	 }
 	}
 $args['register']=true;//this needed to get classes in enterprise code to parse data and insert in database
-	$response = wp_remote_post(
-		$url1,
-		array(
-			'method'      => 'POST',
-			'timeout'     => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking'    => true,
-			'headers'     => array(),
-			'body'        => $args,
-			'cookies'     => array(),
-		)
-	);
-
-	if ( is_wp_error( $response ) ) {
-		$error_message = esc_attr( $response->get_error_message() );
-		echo 'Something went wrong: (' . esc_attr( $error_message ) . ')';
-	} else {
-		$regresults = $response['body'];
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $file);
+		curl_setopt($ch, CURLOPT_POSTFIELDS,$args);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$data = curl_exec($ch);
+    		    $curl_errno = curl_errno($ch);
+		    $curl_error = curl_error($ch);
+		    if ($curl_errno > 0) {
+			    echo "cURL Error line 575 ($curl_errno): $curl_error\n";
+		    } else {
+		$regresults = $data;
 		echo $regresults;
-		?>
+	/*	?>
 <script>
 //dev note ... what is this script actually doing? It looks like a candidate for deprecation
     if ( window.history.replaceState ) {
         window.history.replaceState( null, null, window.location.href );
     }
 </script>
-<?php
+<?php  */
 }
-get_footer();
+//get_footer();
 }
 elseif(isset($_POST['register'])){
 unset($error_test);
@@ -308,5 +249,4 @@ span.dropt span {position: absolute; left: -9999px;
 span.dropt:hover span {margin: 20px 0 0 170px; background: #ffffff; z-index:6;} 
 </style>';
 echo '</div>';
-get_footer();
 ?>

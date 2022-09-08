@@ -1,21 +1,4 @@
 <?php 
-$root = dirname(dirname(dirname(dirname( __FILE__, 2 ))));
-if (file_exists($root.'/wp-load.php')) {
-// WP 2.6
-require_once($root.'/wp-load.php');
-} else {
-// Before 2.6
-require_once($root.'/wp-config.php');
-}
-get_header();
-include(dirname(__DIR__, 1)."/includes/get_wp_option_values.php");
-
-$plugin_is_registered = get_option('mn_plugin_is_registered');
-if($plugin_is_registered == "no" || $plugin_is_registered == "")
-{
-include(dirname(__DIR__, 1).'/translations/en_no_config.php');
-exit();
-}
 $affiliate_num = $_GET['lnk_num'];
 ?>
 

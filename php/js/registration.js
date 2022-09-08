@@ -1,16 +1,6 @@
 <script>
 
-function showSubLoc1(str, main_cat_nonce,currentLevel,cat_id,type) 
-//function showSubMenu(str, currentLevel,cat_id,type) 
-{
-/*
-Process description:
-1) Query remote server, receive JSON string of next menu items
-2) Create the next html menu from the data - store as variable "output"
-3) Add the next holder for the next menu to ouput var - name it with # currentlevel + 1
-4) Replace the div created by previous menu with the new code (note the name of the replaced div will be the same as the current level number)
-
-*/
+function showSubLoc1(str,currentLevel,cat_id,type) 
 var myarr = str.split(":");
 /*window.alert('myarr[0] = '+myarr[0]);
 window.alert('selected catid myarr[1] = '+myarr[1]);
